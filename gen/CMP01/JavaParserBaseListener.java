@@ -1009,13 +1009,21 @@ public class JavaParserBaseListener implements JavaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStatement(JavaParser.StatementContext ctx) {	}
+	@Override public void enterStatement(JavaParser.StatementContext ctx) {
+
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStatement(JavaParser.StatementContext ctx) {	}
+	@Override public void exitStatement(JavaParser.StatementContext ctx) {
+		String stmt = ctx.getChild(0).getText();
+		if(stmt.equals("if") || stmt.equals("while") || stmt.equals("for") || stmt.equals("do"))
+		{
+			az.checkNested(ctx, stmt);
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 *
