@@ -1,16 +1,30 @@
 package CMP01;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Analyzer {
 
-    public static int numOfMethods = 0;
-    public static int numOfFields = 0;
-    public static HashMap<String, Integer> cntParams = new HashMap<>();
-    public static HashMap<String, Integer> cntNestedStmt = new HashMap<>();
+    private int numOfMethods = 0;
+    private int numOfFields = 0;
+    private int nestedCnt = 0;
+    private static final HashMap<String, Integer> cntParams = new HashMap<>();
+    private ArrayList<NestedStatement> infos = new ArrayList<>();
+    private NestedStatement info;
+
+    public void putInfoToList() {
+        infos.add(info);
+    }
+
+    public int getNestedCnt() {
+        return info.getCnt();
+    }
+
+    public void initClass(String stmt, String text, int cnt) {
+        info = new NestedStatement(stmt,text,cnt);
+    }
 
     public void printResult() {
 //        for (String key : cntParams.keySet()) {
@@ -18,9 +32,9 @@ public class Analyzer {
 //        }
 //        System.out.println("Methods count : " + numOfMethods);
 //        System.out.println("Fields count : " + numOfFields);
-        for (String key : cntNestedStmt.keySet()) {
-            System.out.println(key);
-            System.out.println(cntNestedStmt.get(key));
+        for (NestedStatement tmp : infos) {
+            System.out.println(tmp.getText());
+            System.out.println(tmp.getStmt() + " : " + tmp.getCnt());
         }
     }
 
@@ -36,35 +50,25 @@ public class Analyzer {
         numOfFields++;
     }
 
-    public void checkNested(JavaParser.StatementContext ctx, String stmt) {
-        int cnt = 0;
+    public static boolean isBlockStatementContext(ParserRuleContext ctx, int childNum) {
+        return (ctx.getChild(childNum).getChild(0) instanceof JavaParser.BlockContext);
+    }
+
+    public void checkNested(ParserRuleContext ctx, String stmt) {
+        info.incCnt();
         int childNum = switch (stmt) {
             case "if", "while" -> 2;
             case "for" -> 4;
             case "do" -> 1;
             default -> 0;
         };
-        ParserRuleContext tmp = ctx;
-        String curStmt = tmp.getChild(0).getText();
-        while (curStmt.equals(stmt)) {
-//            for(String s : cntNestedStmt.keySet())
-//            {
-//                if(s.contains(ctx.getText()))
-//                {
-//                    return;
-//                }
-//            }
-            tmp = (ParserRuleContext) tmp.getChild(childNum).getChild(0);
-            if (tmp.getChild(1).getText().equals(".")) {
-                break;
-            } else {
-                tmp = (ParserRuleContext) tmp.getChild(1).getChild(0);
-                curStmt = tmp.getChild(0).getText();
+        if (!isBlockStatementContext(ctx, childNum)) return;
+        int blockSize = ctx.getChild(childNum).getChild(0).getChildCount();
+        for (int i = 1; i < blockSize - 1; i++) {
+            ParserRuleContext tmp = (ParserRuleContext) ctx.getChild(childNum).getChild(0).getChild(i).getChild(0); // getBlockStatementContext Node
+            if (tmp instanceof JavaParser.StatementContext && tmp.getChild(0).getText().equals(stmt)) {
+                checkNested(tmp, stmt);
             }
-//            System.out.println(curStmt + " / " + stmt);
-            cnt++;
         }
-        if (cnt <= 1) return;
-        cntNestedStmt.put(ctx.getText(), cnt);
     }
 }

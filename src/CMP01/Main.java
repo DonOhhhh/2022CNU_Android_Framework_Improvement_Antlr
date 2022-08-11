@@ -7,7 +7,9 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        CharStream codeCharStream = CharStreams.fromFileName("/home/cccc/project/frameworks/base/services/core/java/com/android/server/wm/ActivityStarter.java");
+        String loc2 = "/home/cccc/project/frameworks/base/services/core/java/com/android/server/wm/ActivityStarter.java";
+        String loc1 = "/home/cccc/project/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java";
+        CharStream codeCharStream = CharStreams.fromFileName(loc1);
 //        CharStream codeCharStream = CharStreams.fromFileName("/home/cccc/Desktop/CMP/untitled/Test.java");
         JavaLexer lexer = new JavaLexer(codeCharStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
