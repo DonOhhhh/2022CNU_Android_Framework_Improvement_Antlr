@@ -54,8 +54,7 @@ public class Analyzer {
         return (ctx.getChild(childNum).getChild(0) instanceof JavaParser.BlockContext);
     }
 
-    public void checkNested(ParserRuleContext ctx, String stmt) {
-        info.incCnt();
+    public void checkNested(ParserRuleContext ctx, String stmt, int depth) {
         int childNum = switch (stmt) {
             case "if", "while" -> 2;
             case "for" -> 4;
@@ -67,8 +66,9 @@ public class Analyzer {
         for (int i = 1; i < blockSize - 1; i++) {
             ParserRuleContext tmp = (ParserRuleContext) ctx.getChild(childNum).getChild(0).getChild(i).getChild(0); // getBlockStatementContext Node
             if (tmp instanceof JavaParser.StatementContext && tmp.getChild(0).getText().equals(stmt)) {
-                checkNested(tmp, stmt);
+                checkNested(tmp, stmt, depth + 1);
             }
         }
+        if(depth > info.getCnt()) info.setCnt(depth);
     }
 }

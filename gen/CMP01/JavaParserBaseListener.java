@@ -1512,7 +1512,7 @@ public class JavaParserBaseListener implements JavaParserListener {
         String stmt = ctx.getChild(0).getText();
         az.initClass(stmt,ctx.getText(),0);
         if (stmt.equals("if") || stmt.equals("while") || stmt.equals("for") || stmt.equals("do")) {
-            az.checkNested(ctx, stmt);
+            az.checkNested(ctx, stmt, 1);
             if (az.getNestedCnt() > 2) {
                 az.putInfoToList();
             }
