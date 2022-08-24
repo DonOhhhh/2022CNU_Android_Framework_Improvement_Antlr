@@ -1518,9 +1518,9 @@ public class JavaParserBaseListener implements JavaParserListener {
 //            }
 //        }
 
-//        if (stmt.equals("if")) {
-//            az.countElseIf(ctx);
-//        }
+        if (stmt.equals("if")) {
+            az.countElseIf(ctx);
+        }
 
         if(stmt.equals("switch"))
         {
