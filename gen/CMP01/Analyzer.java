@@ -1,9 +1,12 @@
 package CMP01;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Analyzer {
 
@@ -32,10 +35,10 @@ public class Analyzer {
 //        }
 //        System.out.println("Methods count : " + numOfMethods);
 //        System.out.println("Fields count : " + numOfFields);
-        for (NestedStatement tmp : infos) {
-            System.out.println(tmp.getText());
-            System.out.println(tmp.getStmt() + " : " + tmp.getCnt());
-        }
+//        for (NestedStatement tmp : infos) {
+//            System.out.println(tmp.getText());
+//            System.out.println(tmp.getStmt() + " : " + tmp.getCnt());
+//        }
     }
 
     public void countParameters(JavaParser.MethodDeclarationContext ctx) {
@@ -70,5 +73,28 @@ public class Analyzer {
             }
         }
         if(depth > info.getCnt()) info.setCnt(depth);
+    }
+
+    public void countElseIf(ParserRuleContext ctx) {
+        int cnt = 1;
+        ParseTree tmp = ctx;
+        while(true)
+        {
+            if(tmp.getChildCount() < 4) break;
+            if(!(tmp.getChild(4).getChild(0) instanceof TerminalNode)) break;
+            tmp = tmp.getChild(4);
+            cnt++;
+        }
+        if(cnt > 2)
+        {
+            System.out.println(ctx.getText());
+            System.out.println(cnt);
+        }
+    }
+
+    public void countCases(ParserRuleContext ctx) {
+        int cnt = 0;
+        System.out.println(ctx.getText());
+        System.out.println(ctx.getChildCount()-4);
     }
 }

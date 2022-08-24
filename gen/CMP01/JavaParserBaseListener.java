@@ -1510,12 +1510,21 @@ public class JavaParserBaseListener implements JavaParserListener {
     @Override
     public void exitStatement(JavaParser.StatementContext ctx) {
         String stmt = ctx.getChild(0).getText();
-        az.initClass(stmt,ctx.getText(),0);
-        if (stmt.equals("if") || stmt.equals("while") || stmt.equals("for") || stmt.equals("do")) {
-            az.checkNested(ctx, stmt, 1);
-            if (az.getNestedCnt() > 2) {
-                az.putInfoToList();
-            }
+//        az.initClass(stmt,ctx.getText(),0);
+//        if (stmt.equals("if") || stmt.equals("while") || stmt.equals("for") || stmt.equals("do")) {
+//            az.checkNested(ctx, stmt, 1);
+//            if (az.getNestedCnt() > 2) {
+//                az.putInfoToList();
+//            }
+//        }
+
+//        if (stmt.equals("if")) {
+//            az.countElseIf(ctx);
+//        }
+
+        if(stmt.equals("switch"))
+        {
+            az.countCases(ctx);
         }
     }
 
