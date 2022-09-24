@@ -1,11 +1,11 @@
 package CMP01;
 
-public class NestedStatement {
+public class StatementCnt {
     private String stmt;
     private int cnt;
     private String text;
 
-    NestedStatement(String stmt, String text, int cnt) {
+    StatementCnt(String stmt, String text, int cnt) {
         this.stmt = stmt;
         this.text = text;
         this.cnt = cnt;

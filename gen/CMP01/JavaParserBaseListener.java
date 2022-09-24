@@ -6,13 +6,17 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * This class provides an empty implementation of {@link JavaParserListener},
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
 public class JavaParserBaseListener implements JavaParserListener {
-    Analyzer az = new Analyzer();
+    Analyzer az = new Analyzer(Main.getFileName());
+    HashMap<String, Integer> arguments = Main.getCntArgs();
 
     /**
      * {@inheritDoc}
@@ -30,7 +34,8 @@ public class JavaParserBaseListener implements JavaParserListener {
      */
     @Override
     public void exitCompilationUnit(JavaParser.CompilationUnitContext ctx) {
-        az.printResult();
+//        az.printResult();
+        az.writeResult();
     }
 
     /**
@@ -391,8 +396,6 @@ public class JavaParserBaseListener implements JavaParserListener {
      */
     @Override
     public void exitMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
-        az.countParameters(ctx);
-        az.countMethods();
     }
 
     /**
@@ -501,7 +504,6 @@ public class JavaParserBaseListener implements JavaParserListener {
      */
     @Override
     public void exitFieldDeclaration(JavaParser.FieldDeclarationContext ctx) {
-        az.countFields();
     }
 
     /**
@@ -1500,7 +1502,8 @@ public class JavaParserBaseListener implements JavaParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void enterStatement(JavaParser.StatementContext ctx) { }
+    public void enterStatement(JavaParser.StatementContext ctx) {
+    }
 
     /**
      * {@inheritDoc}
@@ -1510,21 +1513,33 @@ public class JavaParserBaseListener implements JavaParserListener {
     @Override
     public void exitStatement(JavaParser.StatementContext ctx) {
         String stmt = ctx.getChild(0).getText();
-//        az.initClass(stmt,ctx.getText(),0);
-//        if (stmt.equals("if") || stmt.equals("while") || stmt.equals("for") || stmt.equals("do")) {
-//            az.checkNested(ctx, stmt, 1);
-//            if (az.getNestedCnt() > 2) {
-//                az.putInfoToList();
-//            }
-//        }
-
-        if (stmt.equals("if")) {
-            az.countElseIf(ctx);
-        }
-
-        if(stmt.equals("switch"))
-        {
-            az.countCases(ctx);
+        for (String codesmell : arguments.keySet()) {
+            az.initClass(codesmell, ctx.getText());
+            switch (codesmell) {
+                case "nestedIf":
+                    if (stmt.equals("if")) {
+                        az.checkNested(ctx, 1);
+                    }
+                    break;
+                case "nestedLoop":
+                    if (stmt.equals("for") || stmt.equals("while") || stmt.equals("do")) {
+                        az.checkNested(ctx, 1);
+                    }
+                    break;
+                case "elseIf":
+                    if(stmt.equals("if")) {
+                        az.countElseIf(ctx);
+                    }
+                    break;
+                case "cases":
+                    if (stmt.equals("switch")) {
+                        az.countCases(ctx);
+                    }
+                    break;
+            }
+            if (az.getInfoCnt() >= this.arguments.get(codesmell)) {
+                az.putInfoToList(codesmell);
+            }
         }
     }
 
