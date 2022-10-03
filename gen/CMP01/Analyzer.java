@@ -3,6 +3,8 @@ package CMP01;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.poi.ss.usermodel.CellRange;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.io.IOException;
 import java.sql.Statement;
@@ -53,27 +55,38 @@ public class Analyzer {
     }
 
     public void writeResult() {
-        int STARTCOL = wtx.getSTARTCOL();
-        int curRow = wtx.getLastRow();
+        int codeCellColNum = wtx.getSTARTCOL() - 1;
+        int startRow = wtx.getLastRow() + 1;
         int resultSize = 0;
         List<String> args = new ArrayList<>(cntResult.keySet());
-        HashMap<String, Integer> findCellCol = new HashMap<>();
-        for (int i = 0; i < args.size(); i++) {
-            findCellCol.put(args.get(i), i + STARTCOL);
-        }
+        HashMap<String, Integer> findCellCol = wtx.getCellColNum();
         // write data
         for (String arg : args) {
             List<StatementCnt> cslist = cntResult.get(arg);
             for (StatementCnt statementCnt : cslist) {
-                wtx.writeCell(statementCnt.getText(), curRow + resultSize, STARTCOL - 1);
-                wtx.writeCell(String.valueOf(statementCnt.getCnt()), curRow + resultSize, findCellCol.get(statementCnt.getStmt()));
+                // Writes smelly code
+                wtx.writeCell(statementCnt.getText(), startRow + resultSize, codeCellColNum);
+                // Writes count of code smell
+                wtx.writeCell(statementCnt.getCnt(), startRow + resultSize, findCellCol.get(statementCnt.getStmt()));
                 resultSize++;
             }
         }
         // write filename
         if (resultSize != 0) {
-            wtx.writeMergedCell(this.filename, curRow, curRow + resultSize, 1, 1);
-            wtx.setLastRow(curRow + resultSize);
+            // write code smell count
+//            int curRow = startRow + resultSize;
+//            wtx.writeCell("Total count", curRow, 2);
+//            for (String arg : args) {
+//                int col = findCellCol.get(arg);
+//                CellRangeAddress cra = new CellRangeAddress(startRow, curRow, col, col);
+//                wtx.writeFormula(String.format("COUNT(%s)", cra.formatAsString()), curRow, col);
+//            }
+//            resultSize++;
+            // merge and write file name
+            for(int i = startRow ; i < startRow + resultSize ; i++) {
+                wtx.writeCell(this.filename, i, 1);
+            }
+//            wtx.writeMergedCell(this.filename, startRow, startRow + resultSize, 1, 1);
         }
     }
 
@@ -115,7 +128,12 @@ public class Analyzer {
                 if (tmp instanceof JavaParser.StatementContext && stmts.contains(tmp.getChild(0).getText())) {
                     checkNested(tmp, depth + 1);
                 } else if (tmp.getChild(0).getText().equals("try")) {
-                    countNestedInTry((ParserRuleContext) tmp.getChild(1), depth);
+                    if(tmp.getChild(1) instanceof JavaParser.BlockContext) {
+                        countNestedInTry((ParserRuleContext) tmp.getChild(1), depth);
+                    }
+                    else {
+                        countNestedInTry((ParserRuleContext) tmp.getChild(2), depth);
+                    }
                 }
             }
             if (depth > info.getCnt()) info.setCnt(depth);

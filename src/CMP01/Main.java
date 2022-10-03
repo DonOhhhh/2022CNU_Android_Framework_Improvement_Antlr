@@ -27,6 +27,10 @@ public class Main {
         return fileName;
     }
 
+    public static String getPath() {
+        return path;
+    }
+
     public static void showFilesInDIr(String dirPath) throws IOException {
         File dir = new File(dirPath);
         File[] files = dir.listFiles();
@@ -40,8 +44,17 @@ public class Main {
                 startAnalyze(file.getAbsolutePath());
             }
         }
-        wtx.writeMergedCell(path, 1, wtx.getLastRow(), 0, 0);
-        wtx.writeToFile(path);
+        int curRowOrZeroColumn = wtx.getCurRowOfFnCell();
+        int lastRowOfSheet = wtx.getLastRow();
+        int newLastRowOfSheet = curRowOrZeroColumn + (lastRowOfSheet - curRowOrZeroColumn) + 1;
+        try {
+            for (int i = curRowOrZeroColumn; i < newLastRowOfSheet; i++) {
+                wtx.writeCell(dirPath.substring(dirPath.lastIndexOf("server")), i, 0);
+            }
+//            wtx.writeMergedCell(dirPath, curRowOrZeroColumn, newLastRowOfSheet, 0, 0);
+            wtx.setCurRowOfFnCell(newLastRowOfSheet);
+        } catch (NullPointerException ignored) {
+        }
     }
 
     public static void startAnalyze(String file) throws IOException {
@@ -56,8 +69,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         List<String> checkList = List.of("--nestedIf", "--elseIf", "--nestedLoop", "--cases");
-        String loc2 = "/home/cccc/project/frameworks/base/services/core/java/com/android/server/wm/ActivityStarter.java";
-        String loc1 = "/home/cccc/project/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java";
         if (args.length == 0) {
             System.out.println("Please use the options.");
             return;
@@ -83,7 +94,7 @@ public class Main {
         }
         wtx = new WriteToXls();
         showFilesInDIr(path);
-
-//        startAnalyze(loc1);
+//        startAnalyze("/home/cccc/project/frameworks/base/services/core/java/com/android/server/VibratorService.java");
+        wtx.writeToFile(path);
     }
 }
