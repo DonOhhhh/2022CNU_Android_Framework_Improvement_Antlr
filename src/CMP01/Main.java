@@ -48,10 +48,15 @@ public class Main {
         int lastRowOfSheet = wtx.getLastRow();
         int newLastRowOfSheet = curRowOrZeroColumn + (lastRowOfSheet - curRowOrZeroColumn) + 1;
         try {
-            for (int i = curRowOrZeroColumn; i < newLastRowOfSheet; i++) {
-                wtx.writeCell(dirPath.substring(dirPath.lastIndexOf("server")), i, 0);
-            }
-//            wtx.writeMergedCell(dirPath, curRowOrZeroColumn, newLastRowOfSheet, 0, 0);
+
+            // write directory path at every cell
+//            for (int i = curRowOrZeroColumn; i < newLastRowOfSheet; i++) {
+//                wtx.writeCell(dirPath.substring(dirPath.lastIndexOf("server")), i, 0);
+//            }
+
+            // merge and write directory path
+            wtx.writeMergedCell(dirPath.substring(dirPath.lastIndexOf("server")), curRowOrZeroColumn, newLastRowOfSheet, 0, 0);
+
             wtx.setCurRowOfFnCell(newLastRowOfSheet);
         } catch (NullPointerException ignored) {
         }

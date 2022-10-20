@@ -82,11 +82,14 @@ public class Analyzer {
 //                wtx.writeFormula(String.format("COUNT(%s)", cra.formatAsString()), curRow, col);
 //            }
 //            resultSize++;
-            // merge and write file name
-            for(int i = startRow ; i < startRow + resultSize ; i++) {
-                wtx.writeCell(this.filename, i, 1);
-            }
-//            wtx.writeMergedCell(this.filename, startRow, startRow + resultSize, 1, 1);
+
+            // write source filename at every cell
+//            for(int i = startRow ; i < startRow + resultSize ; i++) {
+//                wtx.writeCell(this.filename, i, 1);
+//            }
+
+            // merge and write source filename
+            wtx.writeMergedCell(this.filename, startRow, startRow + resultSize, 1, 1);
         }
     }
 
