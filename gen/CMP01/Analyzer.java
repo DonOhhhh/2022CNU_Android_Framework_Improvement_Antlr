@@ -73,7 +73,7 @@ public class Analyzer {
         }
         // write filename
         if (resultSize != 0) {
-            // write code smell count
+            // write CodeSmell count
 //            int curRow = startRow + resultSize;
 //            wtx.writeCell("Total count", curRow, 2);
 //            for (String arg : args) {
@@ -83,13 +83,16 @@ public class Analyzer {
 //            }
 //            resultSize++;
 
-            // write source filename at every cell
-//            for(int i = startRow ; i < startRow + resultSize ; i++) {
-//                wtx.writeCell(this.filename, i, 1);
-//            }
+            if (Main.isIsForAnalysis()) {
+                // write source filename at every cell
+                for (int i = startRow; i < startRow + resultSize; i++) {
+                    wtx.writeCell(this.filename, i, 1);
+                }
+            } else {
+                // merge and write source filename
+                wtx.writeMergedCell(this.filename, startRow, startRow + resultSize, 1, 1);
+            }
 
-            // merge and write source filename
-            wtx.writeMergedCell(this.filename, startRow, startRow + resultSize, 1, 1);
         }
     }
 
@@ -131,10 +134,9 @@ public class Analyzer {
                 if (tmp instanceof JavaParser.StatementContext && stmts.contains(tmp.getChild(0).getText())) {
                     checkNested(tmp, depth + 1);
                 } else if (tmp.getChild(0).getText().equals("try")) {
-                    if(tmp.getChild(1) instanceof JavaParser.BlockContext) {
+                    if (tmp.getChild(1) instanceof JavaParser.BlockContext) {
                         countNestedInTry((ParserRuleContext) tmp.getChild(1), depth);
-                    }
-                    else {
+                    } else {
                         countNestedInTry((ParserRuleContext) tmp.getChild(2), depth);
                     }
                 }

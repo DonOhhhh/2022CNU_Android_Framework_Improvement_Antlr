@@ -79,14 +79,14 @@ public class WriteToXls {
             sheet.setColumnWidth(i, 3000);
             colName.put(args.get(i - STARTCOL), i);
         }
-        writeCell("Path",0,0);
-        writeCell("Filename",0,1);
-        writeCell("Smelly Code",0,2);
+        writeCell("Path", 0, 0);
+        writeCell("Filename", 0, 1);
+        writeCell("Smelly Code", 0, 2);
     }
 
     public void writeToFile(String path) {
         try {
-            File xlsFile = new File("/home/cccc/Desktop/" + path.substring(path.lastIndexOf('/') + 1) + ".xls");
+            File xlsFile = new File(Main.getOutputPath() + "/" + path.substring(path.lastIndexOf('/') + 1) + ".xls");
             FileOutputStream fileOut = new FileOutputStream(xlsFile);
             workBook.write(fileOut);
         } catch (IOException e) {
@@ -110,7 +110,8 @@ public class WriteToXls {
     public void mergeCell(int fr, int lr, int fc, int lc, Object obj) {
         try {
             sheet.addMergedRegion(new CellRangeAddress(fr, lr - 1, fc, lc));
-        } catch (IllegalArgumentException ignored) { }
+        } catch (IllegalArgumentException ignored) {
+        }
         Cell cell = sheet.getRow(fr).getCell(fc);
         cell.setCellValue((String) obj);
         defaultStyle.setWrapText(true);
